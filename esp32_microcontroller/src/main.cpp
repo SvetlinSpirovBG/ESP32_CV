@@ -34,14 +34,12 @@ void setup()
 	esp_err_t rc;
 	TimestampMeter bootMeter;
 
-	//@SV_TODO: Add TimestampMeter class, just like the good old days!
-
 	Serial.begin(115200);
 	Serial.setDebugOutput(true);
 
-	esp_log("-----------------------------");
+	esp_log("----------------------------------");
 	esp_log("ESP32-CAM Microcontroller started!");
-	esp_log("-----------------------------");
+	esp_log("----------------------------------");
 
 	//Create monitor thread/s
 	pthread_create(&monitor_thread, NULL, monitorFunc, NULL);
@@ -57,25 +55,38 @@ void setup()
 #endif
 
 	rc = g_microcontroller.initializeCamera(framesize_t::FRAMESIZE_VGA, pixformat_t::PIXFORMAT_JPEG);
+
 	if (rc != ESP_OK)
 	{
 		esp_log("Camera init failed with error 0x%x", rc);
 		return;
 	}
 
-	rc = g_microcontroller.startCamServer();
-	if (rc != ESP_OK)
+	rc = g_microcontroller.connectToServer();
+
+	if (ESP_OK != rc)
 	{
-		esp_log("Failed to start camera server! Error 0x%x", rc);
-		return;
+		ESP_LOG_ERROR("Microcontroller failed to connect to HTTP server! Error 0x%x", rc);
+		// return; //@SV_TODO: Don't return untill connectToServer is fully implemented
 	}
 	else
 	{
-		ESP_LOG_CONFIG("Camera Ready! Use 'http://%s to connect. Boot (timestamp):%dms",
-			WiFi.localIP().toString().c_str(), bootMeter.getResultInMs());
+		ESP_LOG_CONFIG("Microcontroller successfully connected to HTTP server");
 	}
 
-	blinkLED(250, 3);
+	//@SV_TODO: Remove the ESP32 as HTTP server and use it as a client instead!
+	// if (ESP_OK != g_microcontroller.startCamServer())
+	// {
+	// 	ESP_LOG_ERROR("Failed to start camera server! Error 0x%x", rc);
+	// 	return;
+	// }
+	// else
+	// {
+	// 	ESP_LOG_CONFIG("Camera Ready! Use 'http://%s to connect. Boot (timestamp):%dms",
+	// 		WiFi.localIP().toString().c_str(), bootMeter.getResultInMs());
+	// }
+
+	blinkLED(200, 1);
 }
 
 void loop()

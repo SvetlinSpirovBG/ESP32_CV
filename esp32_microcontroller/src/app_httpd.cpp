@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "esp_http_server.h"
+#include "esp_http_client.h"
 #include "esp_timer.h"
 #include "esp_camera.h"
 #include "img_converters.h"
@@ -507,6 +508,7 @@ static esp_err_t capture_handler(httpd_req_t *req)
 
 static esp_err_t stream_handler(httpd_req_t *req)
 {
+    ESP_LOG_CONFIG("Handling stream");
     camera_fb_t *fb = NULL;
     struct timeval _timestamp;
     esp_err_t res = ESP_OK;
@@ -554,6 +556,8 @@ static esp_err_t stream_handler(httpd_req_t *req)
     isStreaming = true;
 #endif
 
+    uint64_t frameNum = 0;
+
     while (true)
     {
 #if CONFIG_ESP_FACE_DETECT_ENABLED
@@ -563,8 +567,10 @@ static esp_err_t stream_handler(httpd_req_t *req)
         face_id = 0;
 #endif
 
+        frameNum++;
         fb = esp_camera_fb_get();
-        log_e("FB format:%d %dx%d", fb->format, fb->width, fb->height);
+        ESP_LOG_CONFIG("Frame n.%5llu format:%d %dx%d. bytes %d, center pixel:%d",
+            frameNum, fb->format, fb->width, fb->height, fb->len, *(fb->buf + fb->len / 2));
         if (!fb)
         {
             log_e("Camera capture failed");
@@ -599,6 +605,8 @@ static esp_err_t stream_handler(httpd_req_t *req)
                 }
                 else
                 {
+                    //JPEG buffer
+                    ESP_LOG_VERBOSE("Jpeg format. Buffer size = %zu", fb->len);
                     _jpg_buf_len = fb->len;
                     _jpg_buf = fb->buf;
                 }

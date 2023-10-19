@@ -44,11 +44,17 @@ public:
     */
     void connectToWifi();
 
-    /** @brief      Start the camera server
+    /** @brief      Start a camera HTTP server running on this microcontroller
      *
      *  @return     Success or failure code
     */
     esp_err_t startCamServer();
+
+    /** @brief      Connect to an HHTP server using IP address and port
+     *
+     *  @return     Success or failure code
+    */
+    esp_err_t connectToServer();
 
     Esp32Microntroller(/* args */);
     ~Esp32Microntroller();

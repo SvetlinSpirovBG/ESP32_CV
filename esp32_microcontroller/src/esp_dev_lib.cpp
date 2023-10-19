@@ -37,11 +37,14 @@ void setupLedFlash(int pin)
 void blinkLED(int durationInMs, int numOfBlinks)
 {
 	int max_led_intensity = 50; //@todo Add this as an input parameter
-	for (int i = 0; i < numOfBlinks; i++) {
-		// Turn on the flash
-	    esp_log("Fire LED flash!");
 
-		for (int i = 0; i < max_led_intensity; i++) {
+	for (int i = 0; i < numOfBlinks; i++)
+	{
+		// Turn on the flash
+	    ESP_LOG_INFO("Fire LED flash!");
+
+		for (int i = 0; i < max_led_intensity; i++)
+		{
 			ledcWrite(2, i);
 			delay(5);
 		}
@@ -50,7 +53,8 @@ void blinkLED(int durationInMs, int numOfBlinks)
 		delay(durationInMs);
 
 		// Turn off the flash
-		for (int i = max_led_intensity; i >= 0; i--) {
+		for (int i = max_led_intensity; i >= 0; i--)
+		{
 			ledcWrite(2, i);
 			delay(10);
 		}
@@ -59,6 +63,11 @@ void blinkLED(int durationInMs, int numOfBlinks)
 		// @todo Add this as an input parameter
 		delay(durationInMs*2);
 	}
+}
+
+int64_t TimestampMeter::getCurrentTime()
+{
+	return esp_timer_get_time();
 }
 
 TimestampMeter::TimestampMeter(/* args */)
